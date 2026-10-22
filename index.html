@@ -822,15 +822,15 @@
               <div id="botProfilePanel" style="display:none;margin-top:10px;padding:12px;background:var(--page);border:1px solid var(--border);border-radius:8px;display:flex;flex-direction:column;gap:8px;">
                 <div style="font-size:12px;font-weight:600;color:var(--ink-2)">👤 個人簽名檔（自動儲存並套用於信末）：</div>
                 <div class="frow">
-                  <div class="field"><label for="botProfName">姓名</label><input type="text" id="botProfName" class="searchbox" style="width:100%" value="Angela Tsai" /></div>
-                  <div class="field"><label for="botProfTitle">職稱</label><input type="text" id="botProfTitle" class="searchbox" style="width:100%" value="Business Development Manager" /></div>
+                  <div class="field"><label for="botProfName">姓名</label><input type="text" id="botProfName" class="searchbox" style="width:100%" value="" placeholder="請輸入姓名" placeholder="請輸入姓名" /></div>
+                  <div class="field"><label for="botProfTitle">職稱</label><input type="text" id="botProfTitle" class="searchbox" style="width:100%" value="" placeholder="請輸入職稱" placeholder="請輸入職稱" /></div>
                 </div>
                 <div class="frow">
-                  <div class="field"><label for="botProfDept">部門</label><input type="text" id="botProfDept" class="searchbox" style="width:100%" value="ASUS Smart Healthcare BD" /></div>
-                  <div class="field"><label for="botProfEmail">Email</label><input type="text" id="botProfEmail" class="searchbox" style="width:100%" value="angela_tsai@asus.com" /></div>
+                  <div class="field"><label for="botProfDept">部門</label><input type="text" id="botProfDept" class="searchbox" style="width:100%" value="" placeholder="請輸入部門" placeholder="請輸入部門" /></div>
+                  <div class="field"><label for="botProfEmail">Email</label><input type="text" id="botProfEmail" class="searchbox" style="width:100%" value="" placeholder="請輸入 Email" placeholder="請輸入 Email" /></div>
                 </div>
                 <div class="frow">
-                  <div class="field"><label for="botProfPhone">電話 / 手機</label><input type="text" id="botProfPhone" class="searchbox" style="width:100%" value="+886-2-2894-3447" /></div>
+                  <div class="field"><label for="botProfPhone">電話 / 手機</label><input type="text" id="botProfPhone" class="searchbox" style="width:100%" value="" placeholder="請輸入電話" placeholder="請輸入電話" /></div>
                   <div class="field"><label for="botApiKeyInput">Claude API Key（選填，留空使用內建超強引擎）</label><input type="password" id="botApiKeyInput" class="searchbox" style="width:100%" placeholder="sk-ant-..." /></div>
                 </div>
               </div>
@@ -1022,7 +1022,7 @@
           </div>
           <div class="field" style="margin-top:14px">
             <label for="pasteBox">或直接貼上週報 / 會議紀錄文字（每行自動辨識國家與經銷商）</label>
-            <textarea id="pasteBox" rows="4" placeholder="例：印尼 USGH 已將 Kemenkes 註冊文件送件，預計 9 月取得證照&#10;NZ Wave Healthcare Neil 回覆合約條款，下週安排視訊會議"></textarea>
+            <textarea id="pasteBox" rows="4" placeholder="貼上週報或會議紀錄文字，系統將自動解析國家與經銷商進度…"></textarea>
             <div><button class="btn" id="parsePasteBtn" type="button" style="margin-top:6px">🔍 解析文字</button></div>
           </div>
           <div class="preview-box" id="previewBox" style="display:none"></div>
@@ -1123,7 +1123,7 @@ function mergeCatalogSeed(s) {
 }
 /* ================= 進度更新（Claude 從週報同步） =================
    每筆更新只套用一次（appliedUpdates 記錄 id），不會覆蓋妳手動輸入的紀錄。
-   log 依時間舊→新排列。來源：Weekly Plan_2026_Angela（WW29–WW30） */
+   log 依時間舊→新排列。來源：Weekly Plan（WW29–WW30） */
 const DIST_UPDATES = [];/*DIST_UPDATES_END*/
 const REG_UPDATES = [];/*REG_UPDATES_END*/
 function applyProgressUpdates(s) {
@@ -1274,7 +1274,7 @@ function loadState() {
 
 /* ================= 同步更新（Claude 進度同步）=================
    瀏覽器已存過資料後，直接改 SEED 不會生效（loadState 優先讀 localStorage）。
-   所以每次 Angela 告知新進度，Claude 會在這裡加一筆 patch（唯一 id + apply 函式），
+   所以每次 User 告知新進度，Claude 會在這裡加一筆 patch（唯一 id + apply 函式），
    只修改該筆提到的欄位，不會動到其他已存在 localStorage 的手動編輯。
    每個 patch 只會套用一次（依 id 記錄在 SYNC_LOG_KEY）。 */
 const SYNC_LOG_KEY = "lu800-dashboard-sync-log";
@@ -2501,7 +2501,7 @@ function openClientDrawer(id, coll = "clients") {
           `<option value="${k}" ${(c.leadStatus || "new") === k ? "selected" : ""}>${lab}</option>`).join("")}</select></div>
     </div>
     <div class="frow">
-      ${fieldHTML("cowner", "BD 負責人", c.owner, "text", "例：Angela")}
+      ${fieldHTML("cowner", "BD 負責人", c.owner, "text", "例：BD Owner")}
       <div class="field"><label>產品興趣</label>
         <div style="display:flex;gap:10px;flex-wrap:wrap;padding:6px 0">${products().map(p =>
           `<label style="font-size:12.5px;display:flex;gap:4px;align-items:center;font-weight:400"><input type="checkbox" class="int-chk" value="${esc(p)}" ${(c.interests || []).includes(p) ? "checked" : ""} />${intIcon(p)} ${esc(p)}</label>`).join("")}</div></div>
@@ -3773,7 +3773,7 @@ const EMAIL_BOT_TEMPLATES = [
   { label: "🖥️ 技術/DICOM/跨平台相容性", text: "您好，請問 ASUS LU800 是否支援醫院現有的 PACS 系統與 DICOM Worklist？另外，MediConnect App 是否支援在 iPad (iOS) 以及 Windows 醫療電腦上運行？" },
   { label: "💰 價格/預算考量與 ROI", text: "您好，我們是基層診所，預算較有限，目前主要看診項目為腹部與甲狀腺。請問貴公司手持超音波是否有針對基層診所的推薦方案或高性價比配置？" },
   { label: "🩺 邀請 Demo / 實機體驗需求", text: "您好，我們醫院急診與重症科醫師希望能安排實機 Demo 體驗 ASUS LU800 的影像品質與 AI 智慧功能（如 Auto IMT、Auto Bladder），請問近期能否安排業務或臨床專員來院展示？" },
-  { label: "🤝 經銷代理/標案合作洽談", text: "Dear Angela,\nWe are a specialized medical equipment distributor in our region with strong hospital networks in cardiology and point-of-care ultrasound. We would like to explore distribution partnership opportunities for ASUS LU800 ultrasound and clinical displays. Please share your partnership terms and registration support process.\nSincerely," },
+  { label: "🤝 經銷代理/標案合作洽談", text: "Dear Team,\nWe are a specialized medical equipment distributor in our region with strong hospital networks in cardiology and point-of-care ultrasound. We would like to explore distribution partnership opportunities for ASUS LU800 ultrasound and clinical displays. Please share your partnership terms and registration support process.\nSincerely," },
   { label: "🐾 獸醫專用超音波諮詢", text: "您好，我們是動物醫院連鎖機構，想了解 ASUS LU800 獸醫專用版（MediConnect Vet）針對伴侶動物（犬貓腹部/心臟）與大動物的探頭型號（LU800M / LU800L / LU800C）、獸醫專用測量軟體及報價。謝謝。" }
 ];
 
@@ -3937,11 +3937,11 @@ function saveBotProfile() {
 
 function getBotProfile() {
   return {
-    name: $("#botProfName").value.trim() || "Angela Tsai",
-    title: $("#botProfTitle").value.trim() || "Business Development Manager",
-    dept: $("#botProfDept").value.trim() || "ASUS Smart Healthcare BD",
-    email: $("#botProfEmail").value.trim() || "angela_tsai@asus.com",
-    phone: $("#botProfPhone").value.trim() || "+886-2-2894-3447"
+    name: $("#botProfName").value.trim() || "",
+    title: $("#botProfTitle").value.trim() || "",
+    dept: $("#botProfDept").value.trim() || "",
+    email: $("#botProfEmail").value.trim() || "",
+    phone: $("#botProfPhone").value.trim() || ""
   };
 }
 
@@ -4288,7 +4288,7 @@ function renderBotReply(text, streaming) {
     span.className = "bot-streaming";
     bodyEl.appendChild(span);
   }
-  sigEl.textContent = sigLines.join("\n").trim() || `Angela Tsai | Business Development Manager\nASUS Smart Healthcare BD\nEmail: angela_tsai@asus.com | Tel: +886-2-2894-3447`;
+  sigEl.textContent = sigLines.join("\n").trim();
 }
 
 function copyBotReply() {
@@ -4417,7 +4417,7 @@ async function createSecretGist() {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        description: "ASUS LU800 Dashboard Private Cloud Data (Angela Tsai)",
+        description: "ASUS LU800 Dashboard Private Cloud Data ",
         public: false,
         files: {
           [GIST_FILENAME]: { content: JSON.stringify(state, null, 2) }
