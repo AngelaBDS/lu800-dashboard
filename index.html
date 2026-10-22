@@ -822,15 +822,15 @@
               <div id="botProfilePanel" style="display:none;margin-top:10px;padding:12px;background:var(--page);border:1px solid var(--border);border-radius:8px;display:flex;flex-direction:column;gap:8px;">
                 <div style="font-size:12px;font-weight:600;color:var(--ink-2)">👤 個人簽名檔（自動儲存並套用於信末）：</div>
                 <div class="frow">
-                  <div class="field"><label for="botProfName">姓名</label><input type="text" id="botProfName" class="searchbox" style="width:100%" value="" placeholder="請輸入姓名" placeholder="請輸入姓名" /></div>
-                  <div class="field"><label for="botProfTitle">職稱</label><input type="text" id="botProfTitle" class="searchbox" style="width:100%" value="" placeholder="請輸入職稱" placeholder="請輸入職稱" /></div>
+                  <div class="field"><label for="botProfName">姓名</label><input type="text" id="botProfName" class="searchbox" style="width:100%" value="" placeholder="請輸入姓名" placeholder="請輸入姓名" placeholder="請輸入姓名" /></div>
+                  <div class="field"><label for="botProfTitle">職稱</label><input type="text" id="botProfTitle" class="searchbox" style="width:100%" value="" placeholder="請輸入職稱" placeholder="請輸入職稱" placeholder="請輸入職稱" /></div>
                 </div>
                 <div class="frow">
-                  <div class="field"><label for="botProfDept">部門</label><input type="text" id="botProfDept" class="searchbox" style="width:100%" value="" placeholder="請輸入部門" placeholder="請輸入部門" /></div>
-                  <div class="field"><label for="botProfEmail">Email</label><input type="text" id="botProfEmail" class="searchbox" style="width:100%" value="" placeholder="請輸入 Email" placeholder="請輸入 Email" /></div>
+                  <div class="field"><label for="botProfDept">部門</label><input type="text" id="botProfDept" class="searchbox" style="width:100%" value="" placeholder="請輸入部門" placeholder="請輸入部門" placeholder="請輸入部門" /></div>
+                  <div class="field"><label for="botProfEmail">Email</label><input type="text" id="botProfEmail" class="searchbox" style="width:100%" value="" placeholder="請輸入 Email" placeholder="請輸入 Email" placeholder="請輸入 Email" /></div>
                 </div>
                 <div class="frow">
-                  <div class="field"><label for="botProfPhone">電話 / 手機</label><input type="text" id="botProfPhone" class="searchbox" style="width:100%" value="" placeholder="請輸入電話" placeholder="請輸入電話" /></div>
+                  <div class="field"><label for="botProfPhone">電話 / 手機</label><input type="text" id="botProfPhone" class="searchbox" style="width:100%" value="" placeholder="請輸入電話" placeholder="請輸入電話" placeholder="請輸入電話" /></div>
                   <div class="field"><label for="botApiKeyInput">Claude API Key（選填，留空使用內建超強引擎）</label><input type="password" id="botApiKeyInput" class="searchbox" style="width:100%" placeholder="sk-ant-..." /></div>
                 </div>
               </div>
@@ -4326,7 +4326,7 @@ function loadCloudCfg() {
     return {
       provider: raw.provider || "gist",
       ghToken: (raw.ghToken || "").trim(),
-      gistId: (raw.gistId || "1ed0339eb5c43f1435309e76a41a895b").trim(),
+      gistId: (raw.gistId || "").trim(),
       gasUrl: (raw.gasUrl || "").trim(),
       gasSecret: (raw.gasSecret || "").trim(),
       autoPull: raw.autoPull !== false,
@@ -4334,7 +4334,7 @@ function loadCloudCfg() {
       lastSync: raw.lastSync || null
     };
   } catch (e) {
-    return { provider: "gist", ghToken: "", gistId: "1ed0339eb5c43f1435309e76a41a895b", gasUrl: "", gasSecret: "", autoPull: true, autoPush: true, lastSync: null };
+    return { provider: "gist", ghToken: "", gistId: "", gasUrl: "", gasSecret: "", autoPull: true, autoPush: true, lastSync: null };
   }
 }
 
@@ -4346,7 +4346,22 @@ function saveCloudCfg(cfg) {
 function isCloudConfigured(cfg) {
   cfg = cfg || loadCloudCfg();
   if (cfg.provider === "gas") return Boolean(cfg.gasUrl);
-  return Boolean(cfg.ghToken && cfg.gistId);
+  return Boolean(cfg.ghToken);
+}
+async function autoDiscoverGistId(cfg) {
+  if (cfg.gistId) return cfg.gistId;
+  const res = await fetch("https://api.github.com/gists?per_page=50", {
+    headers: { "Accept": "application/vnd.github+json", "Authorization": "Bearer " + cfg.ghToken },
+    cache: "no-store"
+  });
+  if (!res.ok) throw new Error("無法驗證 Token (HTTP " + res.status + ")");
+  const list = await res.json();
+  const found = Array.isArray(list) ? list.find(g => g.files && g.files[GIST_FILENAME]) : null;
+  if (!found) throw new Error("找不到雲端資料檔，請輸入 Gist ID 或點「自動建立私密雲端資料檔」");
+  cfg.gistId = found.id;
+  if ($("#cloudGistId")) $("#cloudGistId").value = cfg.gistId;
+  saveCloudCfg(cfg);
+  return cfg.gistId;
 }
 
 function updateCloudStatusUI(cfg, msg, isErr) {
@@ -4453,6 +4468,7 @@ async function cloudPush(silent) {
   updateCloudStatusUI(cfg, "上傳雲端中…");
   try {
     if (cfg.provider === "gist") {
+      await autoDiscoverGistId(cfg);
       const res = await fetch("https://api.github.com/gists/" + encodeURIComponent(cfg.gistId), {
         method: "PATCH",
         headers: {
@@ -4505,6 +4521,7 @@ async function cloudPull(silent) {
   try {
     let remoteState = null;
     if (cfg.provider === "gist") {
+      await autoDiscoverGistId(cfg);
       const res = await fetch("https://api.github.com/gists/" + encodeURIComponent(cfg.gistId), {
         headers: {
           "Accept": "application/vnd.github+json",
