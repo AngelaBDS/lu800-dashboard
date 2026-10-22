@@ -822,15 +822,15 @@
               <div id="botProfilePanel" style="display:none;margin-top:10px;padding:12px;background:var(--page);border:1px solid var(--border);border-radius:8px;display:flex;flex-direction:column;gap:8px;">
                 <div style="font-size:12px;font-weight:600;color:var(--ink-2)">👤 個人簽名檔（自動儲存並套用於信末）：</div>
                 <div class="frow">
-                  <div class="field"><label for="botProfName">姓名</label><input type="text" id="botProfName" class="searchbox" style="width:100%" value="" placeholder="請輸入姓名" placeholder="請輸入姓名" placeholder="請輸入姓名" /></div>
-                  <div class="field"><label for="botProfTitle">職稱</label><input type="text" id="botProfTitle" class="searchbox" style="width:100%" value="" placeholder="請輸入職稱" placeholder="請輸入職稱" placeholder="請輸入職稱" /></div>
+                  <div class="field"><label for="botProfName">姓名</label><input type="text" id="botProfName" class="searchbox" style="width:100%" value="" placeholder="請輸入姓名" placeholder="請輸入姓名" placeholder="請輸入姓名" placeholder="請輸入姓名" /></div>
+                  <div class="field"><label for="botProfTitle">職稱</label><input type="text" id="botProfTitle" class="searchbox" style="width:100%" value="" placeholder="請輸入職稱" placeholder="請輸入職稱" placeholder="請輸入職稱" placeholder="請輸入職稱" /></div>
                 </div>
                 <div class="frow">
-                  <div class="field"><label for="botProfDept">部門</label><input type="text" id="botProfDept" class="searchbox" style="width:100%" value="" placeholder="請輸入部門" placeholder="請輸入部門" placeholder="請輸入部門" /></div>
-                  <div class="field"><label for="botProfEmail">Email</label><input type="text" id="botProfEmail" class="searchbox" style="width:100%" value="" placeholder="請輸入 Email" placeholder="請輸入 Email" placeholder="請輸入 Email" /></div>
+                  <div class="field"><label for="botProfDept">部門</label><input type="text" id="botProfDept" class="searchbox" style="width:100%" value="" placeholder="請輸入部門" placeholder="請輸入部門" placeholder="請輸入部門" placeholder="請輸入部門" /></div>
+                  <div class="field"><label for="botProfEmail">Email</label><input type="text" id="botProfEmail" class="searchbox" style="width:100%" value="" placeholder="請輸入 Email" placeholder="請輸入 Email" placeholder="請輸入 Email" placeholder="請輸入 Email" /></div>
                 </div>
                 <div class="frow">
-                  <div class="field"><label for="botProfPhone">電話 / 手機</label><input type="text" id="botProfPhone" class="searchbox" style="width:100%" value="" placeholder="請輸入電話" placeholder="請輸入電話" placeholder="請輸入電話" /></div>
+                  <div class="field"><label for="botProfPhone">電話 / 手機</label><input type="text" id="botProfPhone" class="searchbox" style="width:100%" value="" placeholder="請輸入電話" placeholder="請輸入電話" placeholder="請輸入電話" placeholder="請輸入電話" /></div>
                   <div class="field"><label for="botApiKeyInput">Claude API Key（選填，留空使用內建超強引擎）</label><input type="password" id="botApiKeyInput" class="searchbox" style="width:100%" placeholder="sk-ant-..." /></div>
                 </div>
               </div>
@@ -1294,9 +1294,28 @@ function applySyncPatches(s) {
   return changed;
 }
 
+const CLOUD_MIRROR_STATE = null;/*CLOUD_MIRROR_END*/
+function applyCloudMirror(s) {
+  if (!CLOUD_MIRROR_STATE || typeof CLOUD_MIRROR_STATE !== "object") return false;
+  const mirrorKey = "lu800-cloud-mirror-ver";
+  const ver = String(CLOUD_MIRROR_STATE.updatedAt || "") + "|" + ((CLOUD_MIRROR_STATE.worklogs && CLOUD_MIRROR_STATE.worklogs[0] && CLOUD_MIRROR_STATE.worklogs[0].id) || "");
+  try { if (localStorage.getItem(mirrorKey) === ver) return false; } catch (e) {}
+  if (Array.isArray(CLOUD_MIRROR_STATE.worklogs)) s.worklogs = JSON.parse(JSON.stringify(CLOUD_MIRROR_STATE.worklogs));
+  if (Array.isArray(CLOUD_MIRROR_STATE.distributors)) s.distributors = JSON.parse(JSON.stringify(CLOUD_MIRROR_STATE.distributors));
+  if (Array.isArray(CLOUD_MIRROR_STATE.regulatory)) s.regulatory = JSON.parse(JSON.stringify(CLOUD_MIRROR_STATE.regulatory));
+  if (Array.isArray(CLOUD_MIRROR_STATE.clients)) s.clients = JSON.parse(JSON.stringify(CLOUD_MIRROR_STATE.clients));
+  if (Array.isArray(CLOUD_MIRROR_STATE.nonclients)) s.nonclients = JSON.parse(JSON.stringify(CLOUD_MIRROR_STATE.nonclients));
+  if (Array.isArray(CLOUD_MIRROR_STATE.catalog)) s.catalog = JSON.parse(JSON.stringify(CLOUD_MIRROR_STATE.catalog));
+  if (CLOUD_MIRROR_STATE.updatedAt) s.updatedAt = CLOUD_MIRROR_STATE.updatedAt;
+  try { localStorage.setItem(mirrorKey, ver); } catch (e) {}
+  return true;
+}
+
 let state = loadState();
-if (applySyncPatches(state)) {
-  state.updatedAt = todayStr() + " " + new Date().toTimeString().slice(0, 5);
+const _patched = applySyncPatches(state);
+const _mirrored = applyCloudMirror(state);
+if (_patched || _mirrored) {
+  if (!_mirrored) state.updatedAt = todayStr() + " " + new Date().toTimeString().slice(0, 5);
   try { localStorage.setItem(LS_KEY, JSON.stringify(state)); } catch (e) { /* ignore */ }
 }
 function stages() { return (Array.isArray(state.stages) && state.stages.length) ? state.stages : DEFAULT_STAGES; }
@@ -4323,10 +4342,13 @@ let cloudPushTimer = null;
 function loadCloudCfg() {
   try {
     const raw = JSON.parse(localStorage.getItem(CLOUD_CFG_KEY) || "null") || {};
+    let gistId = (raw.gistId || "").trim();
+    // 自動清除已廢棄的舊 Gist ID，讓系統透過 Token 自動切換至最新私密 Gist
+    if (gistId === "") gistId = "";
     return {
       provider: raw.provider || "gist",
       ghToken: (raw.ghToken || "").trim(),
-      gistId: (raw.gistId || "").trim(),
+      gistId,
       gasUrl: (raw.gasUrl || "").trim(),
       gasSecret: (raw.gasSecret || "").trim(),
       autoPull: raw.autoPull !== false,
@@ -4348,13 +4370,14 @@ function isCloudConfigured(cfg) {
   if (cfg.provider === "gas") return Boolean(cfg.gasUrl);
   return Boolean(cfg.ghToken);
 }
-async function autoDiscoverGistId(cfg) {
-  if (cfg.gistId) return cfg.gistId;
-  const res = await fetch("https://api.github.com/gists?per_page=50", {
+
+async function autoDiscoverGistId(cfg, forceRefresh) {
+  if (cfg.gistId && !forceRefresh && cfg.gistId !== "") return cfg.gistId;
+  const res = await fetch("https://api.github.com/gists?per_page=50&_t=" + Date.now(), {
     headers: { "Accept": "application/vnd.github+json", "Authorization": "Bearer " + cfg.ghToken },
     cache: "no-store"
   });
-  if (!res.ok) throw new Error("無法驗證 Token (HTTP " + res.status + ")");
+  if (!res.ok) throw new Error(res.status === 401 ? "GitHub Token 已失效，請在「資料管理」更新 Token" : ("無法驗證 Token (HTTP " + res.status + ")"));
   const list = await res.json();
   const found = Array.isArray(list) ? list.find(g => g.files && g.files[GIST_FILENAME]) : null;
   if (!found) throw new Error("找不到雲端資料檔，請輸入 Gist ID 或點「自動建立私密雲端資料檔」");
@@ -4403,10 +4426,12 @@ function toggleCloudProviderBox(prov) {
 
 function readCloudForm() {
   const prev = loadCloudCfg();
+  let gistId = $("#cloudGistId") ? $("#cloudGistId").value.trim() : prev.gistId;
+  if (gistId === "") gistId = "";
   return {
     provider: $("#cloudProvider") ? $("#cloudProvider").value : prev.provider,
     ghToken: $("#cloudGhToken") ? $("#cloudGhToken").value.trim() : prev.ghToken,
-    gistId: $("#cloudGistId") ? $("#cloudGistId").value.trim() : prev.gistId,
+    gistId,
     gasUrl: $("#cloudGasUrl") ? $("#cloudGasUrl").value.trim() : prev.gasUrl,
     gasSecret: $("#cloudGasSecret") ? $("#cloudGasSecret").value.trim() : prev.gasSecret,
     autoPull: $("#cloudAutoPull") ? $("#cloudAutoPull").checked : prev.autoPull,
@@ -4432,7 +4457,7 @@ async function createSecretGist() {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        description: "ASUS LU800 Dashboard Private Cloud Data ",
+        description: "ASUS LU800 Dashboard Private Cloud Data",
         public: false,
         files: {
           [GIST_FILENAME]: { content: JSON.stringify(state, null, 2) }
@@ -4469,7 +4494,7 @@ async function cloudPush(silent) {
   try {
     if (cfg.provider === "gist") {
       await autoDiscoverGistId(cfg);
-      const res = await fetch("https://api.github.com/gists/" + encodeURIComponent(cfg.gistId), {
+      let res = await fetch("https://api.github.com/gists/" + encodeURIComponent(cfg.gistId), {
         method: "PATCH",
         headers: {
           "Accept": "application/vnd.github+json",
@@ -4482,6 +4507,23 @@ async function cloudPush(silent) {
           }
         })
       });
+      if (res.status === 404) {
+        cfg.gistId = "";
+        await autoDiscoverGistId(cfg, true);
+        res = await fetch("https://api.github.com/gists/" + encodeURIComponent(cfg.gistId), {
+          method: "PATCH",
+          headers: {
+            "Accept": "application/vnd.github+json",
+            "Authorization": "Bearer " + cfg.ghToken,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            files: {
+              [GIST_FILENAME]: { content: JSON.stringify(state, null, 2) }
+            }
+          })
+        });
+      }
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
         throw new Error(err.message || ("HTTP " + res.status));
@@ -4522,14 +4564,30 @@ async function cloudPull(silent) {
     let remoteState = null;
     if (cfg.provider === "gist") {
       await autoDiscoverGistId(cfg);
-      const res = await fetch("https://api.github.com/gists/" + encodeURIComponent(cfg.gistId), {
+      let res = await fetch("https://api.github.com/gists/" + encodeURIComponent(cfg.gistId) + "?_t=" + Date.now(), {
         headers: {
           "Accept": "application/vnd.github+json",
           "Authorization": "Bearer " + cfg.ghToken
         },
         cache: "no-store"
       });
+      if (res.status === 404) {
+        // 自動修復：若瀏覽器殘留已刪除的舊 Gist ID，自動清空並重新透過 Token 探索最新 Gist
+        cfg.gistId = "";
+        await autoDiscoverGistId(cfg, true);
+        res = await fetch("https://api.github.com/gists/" + encodeURIComponent(cfg.gistId) + "?_t=" + Date.now(), {
+          headers: {
+            "Accept": "application/vnd.github+json",
+            "Authorization": "Bearer " + cfg.ghToken
+          },
+          cache: "no-store"
+        });
+      }
       if (!res.ok) {
+        if (res.status === 401) {
+          switchView("data");
+          throw new Error("GitHub Token 已失效或未更新，請在「資料管理」填入最新 Token");
+        }
         const err = await res.json().catch(() => ({}));
         throw new Error(err.message || ("HTTP " + res.status));
       }
@@ -4557,7 +4615,8 @@ async function cloudPull(silent) {
       throw new Error("雲端資料格式不正確");
     }
     state = finalizeState(remoteState);
-    applySyncPatches(state);
+    // 雲端資料即為跨電腦最新權威狀態，標記所有內建靜態 patch 為已套用，避免舊 patch 覆蓋雲端最新進度
+    try { localStorage.setItem(SYNC_LOG_KEY, JSON.stringify(SYNC_PATCHES.map(p => p.id))); } catch (e) {}
     try { localStorage.setItem(LS_KEY, JSON.stringify(state)); } catch (e) {}
     cfg.lastSync = todayStr() + " " + new Date().toTimeString().slice(0, 5);
     saveCloudCfg(cfg);
