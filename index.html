@@ -17,7 +17,7 @@
     --serious: #ec835a;
     --critical: #d03b3b;
     --stage-1: #86b6ef; --stage-2: #6da7ec; --stage-3: #3987e5;
-    --stage-4: #256abf; --stage-5: #184f95; --stage-6: #104281;
+    --stage-4: #256abf; --stage-5: #184f95; --stage-6: #104281; --stage-7: #94a3b8;
     --chip-bg: #f0efec;
     --side-bg: #f3f2ee;
   }
@@ -28,7 +28,7 @@
       --border: rgba(255,255,255,0.10); --accent: #3987e5; --accent-soft: #10315c;
       --good-text: #0ca30c; --chip-bg: #262624; --side-bg: #141413;
       --stage-1: #86b6ef; --stage-2: #6da7ec; --stage-3: #3987e5;
-      --stage-4: #2a78d6; --stage-5: #256abf; --stage-6: #1c5cab;
+      --stage-4: #2a78d6; --stage-5: #256abf; --stage-6: #1c5cab; --stage-7: #64748b;
     }
   }
   :root[data-theme="light"] {
@@ -37,7 +37,7 @@
     --border: rgba(11,11,11,0.10); --accent: #2a78d6; --accent-soft: #cde2fb;
     --good-text: #006300; --chip-bg: #f0efec; --side-bg: #f3f2ee;
     --stage-1: #86b6ef; --stage-2: #6da7ec; --stage-3: #3987e5;
-    --stage-4: #256abf; --stage-5: #184f95; --stage-6: #104281;
+    --stage-4: #256abf; --stage-5: #184f95; --stage-6: #104281; --stage-7: #94a3b8;
   }
   :root[data-theme="dark"] {
     --surface-1: #1a1a19; --page: #0d0d0d; --ink-1: #ffffff; --ink-2: #c3c2b7;
@@ -45,7 +45,7 @@
     --border: rgba(255,255,255,0.10); --accent: #3987e5; --accent-soft: #10315c;
     --good-text: #0ca30c; --chip-bg: #262624; --side-bg: #141413;
     --stage-1: #86b6ef; --stage-2: #6da7ec; --stage-3: #3987e5;
-    --stage-4: #2a78d6; --stage-5: #256abf; --stage-6: #1c5cab;
+    --stage-4: #2a78d6; --stage-5: #256abf; --stage-6: #1c5cab; --stage-7: #64748b;
   }
 
   * { box-sizing: border-box; }
@@ -822,15 +822,15 @@
               <div id="botProfilePanel" style="display:none;margin-top:10px;padding:12px;background:var(--page);border:1px solid var(--border);border-radius:8px;display:flex;flex-direction:column;gap:8px;">
                 <div style="font-size:12px;font-weight:600;color:var(--ink-2)">👤 個人簽名檔（自動儲存並套用於信末）：</div>
                 <div class="frow">
-                  <div class="field"><label for="botProfName">姓名</label><input type="text" id="botProfName" class="searchbox" style="width:100%" value="" placeholder="請輸入姓名" placeholder="請輸入姓名" placeholder="請輸入姓名" placeholder="請輸入姓名" /></div>
-                  <div class="field"><label for="botProfTitle">職稱</label><input type="text" id="botProfTitle" class="searchbox" style="width:100%" value="" placeholder="請輸入職稱" placeholder="請輸入職稱" placeholder="請輸入職稱" placeholder="請輸入職稱" /></div>
+                  <div class="field"><label for="botProfName">姓名</label><input type="text" id="botProfName" class="searchbox" style="width:100%" value="" placeholder="請輸入姓名" placeholder="請輸入姓名" placeholder="請輸入姓名" placeholder="請輸入姓名" placeholder="請輸入姓名" /></div>
+                  <div class="field"><label for="botProfTitle">職稱</label><input type="text" id="botProfTitle" class="searchbox" style="width:100%" value="" placeholder="請輸入職稱" placeholder="請輸入職稱" placeholder="請輸入職稱" placeholder="請輸入職稱" placeholder="請輸入職稱" /></div>
                 </div>
                 <div class="frow">
-                  <div class="field"><label for="botProfDept">部門</label><input type="text" id="botProfDept" class="searchbox" style="width:100%" value="" placeholder="請輸入部門" placeholder="請輸入部門" placeholder="請輸入部門" placeholder="請輸入部門" /></div>
-                  <div class="field"><label for="botProfEmail">Email</label><input type="text" id="botProfEmail" class="searchbox" style="width:100%" value="" placeholder="請輸入 Email" placeholder="請輸入 Email" placeholder="請輸入 Email" placeholder="請輸入 Email" /></div>
+                  <div class="field"><label for="botProfDept">部門</label><input type="text" id="botProfDept" class="searchbox" style="width:100%" value="" placeholder="請輸入部門" placeholder="請輸入部門" placeholder="請輸入部門" placeholder="請輸入部門" placeholder="請輸入部門" /></div>
+                  <div class="field"><label for="botProfEmail">Email</label><input type="text" id="botProfEmail" class="searchbox" style="width:100%" value="" placeholder="請輸入 Email" placeholder="請輸入 Email" placeholder="請輸入 Email" placeholder="請輸入 Email" placeholder="請輸入 Email" /></div>
                 </div>
                 <div class="frow">
-                  <div class="field"><label for="botProfPhone">電話 / 手機</label><input type="text" id="botProfPhone" class="searchbox" style="width:100%" value="" placeholder="請輸入電話" placeholder="請輸入電話" placeholder="請輸入電話" placeholder="請輸入電話" /></div>
+                  <div class="field"><label for="botProfPhone">電話 / 手機</label><input type="text" id="botProfPhone" class="searchbox" style="width:100%" value="" placeholder="請輸入電話" placeholder="請輸入電話" placeholder="請輸入電話" placeholder="請輸入電話" placeholder="請輸入電話" /></div>
                   <div class="field"><label for="botApiKeyInput">Claude API Key（選填，留空使用內建超強引擎）</label><input type="password" id="botApiKeyInput" class="searchbox" style="width:100%" placeholder="sk-ant-..." /></div>
                 </div>
               </div>
@@ -1062,7 +1062,7 @@
    預設種子資料 — 上傳或編輯後會存到瀏覽器 localStorage，
    之後以 localStorage 為準；「重設為預設資料」可還原。
    ========================================================= */
-const DEFAULT_STAGES = ["名單/初次接觸", "洽談・Demo", "報價・合約", "取證中", "首批訂單", "穩定經營"];
+const DEFAULT_STAGES = ["名單/初次接觸", "洽談・Demo", "報價・合約", "取證中", "首批訂單", "穩定經營", "已結案/終止合作"];
 const LS_KEY = "lu800-dashboard-v2";
 
 const SEED = {
@@ -1189,6 +1189,8 @@ function mergeClientSeed(s) {
 /* ================= 狀態 ================= */
 const STATUS_META = { active: ["現役", "ok"], potential: ["潛在", ""], terminated: ["終止", "term"] };
 function normalizeDist(d, asof) {
+  if (+d.stage === 7) d.status = "terminated";
+  if (d.status === "terminated") { d.stage = 7; d.due = null; }
   if (!d.status || !STATUS_META[d.status]) d.status = d.active === false ? "potential" : "active";
   d.active = d.status === "active";
   if (!Array.isArray(d.history)) d.history = d.lastAction ? [{ d: String(asof || todayStr()).slice(0, 10), t: d.lastAction }] : [];
@@ -1229,6 +1231,7 @@ function normalizeClient(c) {
 }
 function finalizeState(s) {
   if (!Array.isArray(s.stages) || !s.stages.length) s.stages = [...DEFAULT_STAGES];
+  if (!s.stages.includes("已結案/終止合作")) { s.stages.push("已結案/終止合作"); if (Array.isArray(s.stageProbs)) s.stageProbs[s.stages.length - 1] = 0; }
   if (!Array.isArray(s.stageProbs)) s.stageProbs = [10, 25, 50, 60, 90, 100];
   while (s.stageProbs.length < s.stages.length) s.stageProbs.push(50);
   if (!Array.isArray(s.products) || !s.products.length) s.products = [...INTEREST_LIST];
@@ -1301,6 +1304,8 @@ function applyCloudMirror(s) {
   const ver = String(CLOUD_MIRROR_STATE.updatedAt || "") + "|" + ((CLOUD_MIRROR_STATE.worklogs && CLOUD_MIRROR_STATE.worklogs[0] && CLOUD_MIRROR_STATE.worklogs[0].id) || "");
   try { if (localStorage.getItem(mirrorKey) === ver) return false; } catch (e) {}
   if (Array.isArray(CLOUD_MIRROR_STATE.worklogs)) s.worklogs = JSON.parse(JSON.stringify(CLOUD_MIRROR_STATE.worklogs));
+  if (Array.isArray(CLOUD_MIRROR_STATE.stages)) s.stages = JSON.parse(JSON.stringify(CLOUD_MIRROR_STATE.stages));
+  if (Array.isArray(CLOUD_MIRROR_STATE.stageProbs)) s.stageProbs = JSON.parse(JSON.stringify(CLOUD_MIRROR_STATE.stageProbs));
   if (Array.isArray(CLOUD_MIRROR_STATE.distributors)) s.distributors = JSON.parse(JSON.stringify(CLOUD_MIRROR_STATE.distributors));
   if (Array.isArray(CLOUD_MIRROR_STATE.regulatory)) s.regulatory = JSON.parse(JSON.stringify(CLOUD_MIRROR_STATE.regulatory));
   if (Array.isArray(CLOUD_MIRROR_STATE.clients)) s.clients = JSON.parse(JSON.stringify(CLOUD_MIRROR_STATE.clients));
@@ -1462,7 +1467,7 @@ function renderOverview() {
 
   const today = todayStr();
   const dueItems = [
-    ...ds.filter(d => d.due).map(d => ({ flag: d.flag, name: d.name, what: d.nextAction || "", due: d.due })),
+    ...ds.filter(d => d.due && d.status !== "terminated" && +d.stage !== 7).map(d => ({ flag: d.flag, name: d.name, what: d.nextAction || "", due: d.due })),
     ...state.regulatory.filter(r => r.licenseExpiry).map(r => ({ flag: "📑", name: r.market, what: "證照效期", due: r.licenseExpiry }))
   ].sort((a, b) => a.due.localeCompare(b.due)).slice(0, 8);
   $("#upcoming").innerHTML = dueItems.length ? dueItems.map(d => {
@@ -2747,7 +2752,7 @@ dgRoot.addEventListener("drop", e => {
   const d = state.distributors.find(x => x.id === dragCard.dataset.id);
   const n = +listEl.dataset.stage;
   cleanupDrag();
-  if (d && +d.stage !== n) { d.stage = n; saveState(true); toast(`已移到「${stages()[n - 1]}」`); }
+  if (d && +d.stage !== n) { d.stage = n; if (n === 7) { d.status = "terminated"; d.active = false; d.due = null; } else if (d.status === "terminated") { d.status = "potential"; d.active = false; } saveState(true); toast(`已移到「${stages()[n - 1]}」`); }
 });
 dgRoot.addEventListener("dragend", cleanupDrag);
 dgRoot.addEventListener("click", e => {
@@ -2757,7 +2762,7 @@ dgRoot.addEventListener("click", e => {
 dgRoot.addEventListener("change", e => {
   const sel = e.target.closest(".dc-stage"); if (!sel) return;
   const d = state.distributors.find(x => x.id === sel.dataset.id);
-  if (d) { d.stage = +sel.value; saveState(true); toast(`已改為「${stages()[+sel.value - 1]}」`); }
+  if (d) { d.stage = +sel.value; if (+sel.value === 7) { d.status = "terminated"; d.active = false; d.due = null; } else if (d.status === "terminated") { d.status = "potential"; d.active = false; } saveState(true); toast(`已改為「${stages()[+sel.value - 1]}」`); }
 });
 
 /* ---- 自訂階段：新增 / 刪除空階段 ---- */
